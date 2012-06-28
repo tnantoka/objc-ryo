@@ -7,8 +7,10 @@
 //
 
 #import "ViewController.h"
+#import "mrSectionHeaderCell.h"
 #include <objc/runtime.h>
 
+// extendedってproperty作っただけ。
 @interface NSDictionary (mrNSDictionaryExtensionMethods)
 @property () BOOL extended;
 @end
@@ -19,31 +21,35 @@
 }
 - (void)setExtended:(BOOL)extended
 {
-    objc_setAssociatedObject(self, @"extended", [NSNumber numberWithLongLong:extended], OBJC_ASSOCIATION_COPY);
+    objc_setAssociatedObject(self, @"extended", [NSNumber numberWithLongLong:extended], OBJC_ASSOCIATION_ASSIGN);
 }
 @end
 
+
+
 @implementation ViewController
 
+//展開したセル
 - (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     id sectionItem = [_items objectAtIndex:indexPath.section];
     NSString *text = [[sectionItem objectForKey:@"items"] objectAtIndex:indexPath.row];
     
-    UITableViewCell *cell = (id)[_tableView dequeueReusableCellWithIdentifier:@"hoge"];
+    UITableViewCell *cell = (id)[_tableView dequeueReusableCellWithIdentifier:@"cell"];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"hoge"] autorelease];
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"] autorelease];
     }
     cell.textLabel.text = text;
     return cell;
 }
 
+//展開したセルの高さ
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     return 40.0;
 }
 
-//行数
+//展開したセルの数
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     NSDictionary *sectionItem = [_items objectAtIndex:section];
@@ -61,34 +67,29 @@
     return _items.count;
 }
 
+//セクションヘッダの高さ
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
     return 30.0;
 }
 
+//セクションヘッダ
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    id sectionItem = [_items objectAtIndex:section];
+    NSDictionary *sectionItem = [_items objectAtIndex:section];
     
-    UITableViewCell *cell = (id)[_tableView dequeueReusableCellWithIdentifier:@"fuga"];
+    mrSectionHeaderCell *cell = (id)[_tableView dequeueReusableCellWithIdentifier:@"header"];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"fuga"] autorelease];
-        cell.backgroundColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:0.5];
-        UIControl *ctrl = [[UIControl alloc] initWithFrame:cell.bounds];
-        ctrl.backgroundColor = [UIColor clearColor];
-        [cell addSubview:ctrl];
-        [ctrl release];
-        cell.textLabel.backgroundColor = [UIColor clearColor];
+        cell = [[[mrSectionHeaderCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"header"] autorelease];
     }
     cell.textLabel.text = [sectionItem objectForKey:@"text"];
-    
-    UIControl *ctrl = [cell.subviews lastObject];
-    ctrl.frame = cell.bounds;
-    ctrl.tag = section;
-    [ctrl addTarget:self action: @selector(headerTapped:) forControlEvents: UIControlEventTouchUpInside];
+    cell.extended = sectionItem.extended;
+    cell.ctrl.tag = section;
+    [cell.ctrl addTarget:self action: @selector(headerTapped:) forControlEvents: UIControlEventTouchUpInside];
     return cell;
 }
 
+//セクションヘッダをタップした
 - (void)headerTapped:(UIControl*)ctrl
 {
     NSDictionary *sectionItem = [_items objectAtIndex:ctrl.tag];
@@ -102,47 +103,56 @@
     CGRect frame = [[UIScreen mainScreen] bounds];
     self.view = [[[UIView alloc] initWithFrame:frame] autorelease];
     
+    //ファイルから読み込んでソートして、とかやったらいいんだけど面倒なので
     _items = [[NSMutableArray alloc] init];
-    
     NSArray *ary;
     NSString *text;
     NSDictionary *dict;
-    ary = [NSArray arrayWithObjects:@"a",@"b",@"c",@"d",@"e", nil];
-    text = @"アルファベット";
+    ary = [NSArray arrayWithObjects:@"あいず",@"あんこ",@"いのしし",@"えだまめ",@"おじさん", nil];
+    text = @"あ";
     dict = [NSDictionary dictionaryWithObjectsAndKeys:ary,@"items",text,@"text", nil];
     [_items addObject:dict];
-    ary = [NSArray arrayWithObjects:@"1",@"2",@"3",@"4",@"5", nil];
-    text = @"数字";
+    ary = [NSArray arrayWithObjects:@"かまめし",@"くち",@"くすり",@"こうじ", nil];
+    text = @"か";
     dict = [NSDictionary dictionaryWithObjectsAndKeys:ary,@"items",text,@"text", nil];
     [_items addObject:dict];
-    ary = [NSArray arrayWithObjects:@"あ",@"い",@"う",@"え",@"お", nil];
-    text = @"ひらがな";
+    ary = [NSArray arrayWithObjects:@"さんじょう",@"しりもち",@"しおじい",@"すめし",@"すわ",@"せんべい",@"そうめん", nil];
+    text = @"さ";
     dict = [NSDictionary dictionaryWithObjectsAndKeys:ary,@"items",text,@"text", nil];
     [_items addObject:dict];
-    ary = [NSArray arrayWithObjects:@"ア",@"イ",@"ウ",@"エ",@"オ", nil];
-    text = @"カタカナ";
+    ary = [NSArray arrayWithObjects:@"たからずか",@"たのしい",@"ちょっと",@"つらい",@"てんぐ",@"とおりこす", nil];
+    text = @"た";
     dict = [NSDictionary dictionaryWithObjectsAndKeys:ary,@"items",text,@"text", nil];
     [_items addObject:dict];
-    ary = [NSArray arrayWithObjects:@"Ma",@"Na",@"Ka",@"Na", nil];
-    text = @"マナカナ";
+    ary = [NSArray arrayWithObjects:@"なたね",@"にしん",@"ぬかづけ",@"ねこ",@"のろし", nil];
+    text = @"な";
     dict = [NSDictionary dictionaryWithObjectsAndKeys:ary,@"items",text,@"text", nil];
     [_items addObject:dict];
-    text = @"謎文字";
-    dict = [NSDictionary dictionaryWithObjectsAndKeys:text,@"text", nil];
-    [_items addObject:dict];
-    ary = [NSArray arrayWithObjects:@"😄",@"😍",@"😳",@"😜",@"😱", nil];
-    text = @"絵文字";
+    ary = [NSArray arrayWithObjects:@"はじ",@"はんぱ",@"ひんみん",@"ふつう",@"へらす", nil];
+    text = @"は";
     dict = [NSDictionary dictionaryWithObjectsAndKeys:ary,@"items",text,@"text", nil];
     [_items addObject:dict];
-    ary = [NSArray arrayWithObjects:@"Ag",@"Pt",@"Ca",@"Na",@"Mg", nil];
-    text = @"記号";
+    ary = [NSArray arrayWithObjects:@"まつだいら",@"みつなり",@"むねみつ",@"めんこい",@"もうしぶんない", nil];
+    text = @"ま";
+    dict = [NSDictionary dictionaryWithObjectsAndKeys:ary,@"items",text,@"text", nil];
+    [_items addObject:dict];
+    ary = [NSArray arrayWithObjects:@"やっこさん", nil];
+    text = @"や";
+    dict = [NSDictionary dictionaryWithObjectsAndKeys:ary,@"items",text,@"text", nil];
+    [_items addObject:dict];
+    ary = [NSArray arrayWithObjects:@"らいおん",@"りゅう",@"れんこん",@"ろうじん", nil];
+    text = @"ら";
+    dict = [NSDictionary dictionaryWithObjectsAndKeys:ary,@"items",text,@"text", nil];
+    [_items addObject:dict];
+    ary = [NSArray arrayWithObjects:@"わし",@"わだ", nil];
+    text = @"わ";
     dict = [NSDictionary dictionaryWithObjectsAndKeys:ary,@"items",text,@"text", nil];
     [_items addObject:dict];
     
     _tableView = [[UITableView alloc] initWithFrame:self.view.bounds];
     _tableView.delegate = self;
     _tableView.dataSource = self;
-    _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;  
+    //_tableView.separatorStyle = UITableViewCellSeparatorStyleNone;  
     [self.view addSubview:_tableView];
     [_tableView release];
     
