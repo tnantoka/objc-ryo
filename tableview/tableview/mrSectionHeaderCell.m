@@ -7,10 +7,12 @@
 //
 
 #import "mrSectionHeaderCell.h"
+#import <QuartzCore/QuartzCore.h>
 
 @implementation mrSectionHeaderCell
 @synthesize ctrl;
 @synthesize extended;
+@synthesize savedRect;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
@@ -30,8 +32,7 @@
 
 - (void)drawRect:(CGRect)rect
 {
-    rect = self.bounds;
-    CGContextRef context = UIGraphicsGetCurrentContext();   
+    CGContextRef context = UIGraphicsGetCurrentContext();
     
     //背景
     CGFloat components[] = {
@@ -43,11 +44,11 @@
     CGPoint startPoint = rect.origin;
     CGPoint endPoint = rect.origin;
     endPoint.y += rect.size.height;
-    CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
-    CGGradientRef gradientRef = CGGradientCreateWithColorComponents(colorSpaceRef, components, locations, count);
-    CGContextDrawLinearGradient(context, gradientRef, startPoint, endPoint, kCGGradientDrawsAfterEndLocation);
-    CGGradientRelease(gradientRef);
-    CGColorSpaceRelease(colorSpaceRef);
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGGradientRef gradient = CGGradientCreateWithColorComponents(colorSpace, components, locations, count);
+    CGContextDrawLinearGradient(context, gradient, startPoint, endPoint, kCGGradientDrawsAfterEndLocation);
+    CGGradientRelease(gradient);
+    CGColorSpaceRelease(colorSpace);
     
     //上の線
     CGContextSetLineWidth(context, 1.0);
@@ -93,11 +94,18 @@
         CGContextMoveToPoint(context, rect.size.width - 20, 20);
         CGContextAddLineToPoint(context, rect.size.width - 8, 20);
     }else{
-        CGContextSetStrokeColorWithColor(context, [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.5].CGColor);
+        CGContextSetStrokeColorWithColor(context, [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.4].CGColor);
         CGContextMoveToPoint(context, rect.size.width - 20, 12);
         CGContextAddLineToPoint(context, rect.size.width - 14, 20);
     }
     CGContextStrokePath(context);
+}
+
+//動的に行を追加するとサイズがおかしくなってしまうので修正。なんでか？
+- (void)setNeedsLayout
+{
+    self.layer.bounds = savedRect;
+    self.ctrl.frame = savedRect;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated

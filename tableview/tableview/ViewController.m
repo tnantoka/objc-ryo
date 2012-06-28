@@ -38,6 +38,7 @@
     UITableViewCell *cell = (id)[_tableView dequeueReusableCellWithIdentifier:@"cell"];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"] autorelease];
+        cell.selectionStyle = UITableViewCellSelectionStyleGray;
     }
     cell.textLabel.text = text;
     return cell;
@@ -84,23 +85,53 @@
     }
     cell.textLabel.text = [sectionItem objectForKey:@"text"];
     cell.extended = sectionItem.extended;
+    cell.tag = section;
     cell.ctrl.tag = section;
     [cell.ctrl addTarget:self action: @selector(headerTapped:) forControlEvents: UIControlEventTouchUpInside];
+    CGRect rect = cell.bounds;
+    rect.size.height = [self tableView:tableView heightForHeaderInSection:section];
+    cell.savedRect = rect;
     return cell;
 }
 
 //セクションヘッダをタップした
 - (void)headerTapped:(UIControl*)ctrl
 {
-    NSDictionary *sectionItem = [_items objectAtIndex:ctrl.tag];
+    int section = ctrl.tag;
+    NSDictionary *sectionItem = [_items objectAtIndex:section];
     sectionItem.extended = !sectionItem.extended;
-    [_tableView reloadData];
+    
+    //[_tableView reloadData];
+    
+    [_tableView beginUpdates];
+    NSArray *sitems = [sectionItem objectForKey:@"items"];
+    NSMutableArray *indexes = [[NSMutableArray alloc] initWithCapacity:sitems.count];
+    for(int i=0;i<sitems.count;i++){
+        [indexes addObject:[NSIndexPath indexPathForRow:i inSection:section]];
+    }
+    if(sectionItem.extended){
+        [_tableView insertRowsAtIndexPaths:indexes withRowAnimation:UITableViewRowAnimationFade];
+    }else{
+        [_tableView deleteRowsAtIndexPaths:indexes withRowAnimation:UITableViewRowAnimationFade];
+    }
+    [indexes release];
+    [_tableView endUpdates];
+    
+    for(mrSectionHeaderCell *cell in _tableView.subviews){
+        if([cell isKindOfClass:[mrSectionHeaderCell class]]){
+            if(cell.tag==section){
+                cell.extended = sectionItem.extended;
+                [cell setNeedsDisplay];
+                break;
+            }
+        }
+    }
 }
 
 - (id)init
 {
     self = [super init];
-    CGRect frame = [[UIScreen mainScreen] bounds];
+    CGRect frame = [[UIScreen mainScreen] applicationFrame];
     self.view = [[[UIView alloc] initWithFrame:frame] autorelease];
     
     //ファイルから読み込んでソートして、とかやったらいいんだけど面倒なので

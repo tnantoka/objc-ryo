@@ -11,4 +11,5 @@
 @interface mrSectionHeaderCell : UITableViewCell
 @property (retain, nonatomic) UIControl *ctrl;
 @property (assign) BOOL extended;
+@property (assign) CGRect savedRect;
 @end
