@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "mrSectionHeaderCell.h"
+#import "mrCell.h"
 #include <objc/runtime.h>
 
 // extendedってproperty作っただけ。
@@ -35,19 +36,12 @@
     id sectionItem = [_items objectAtIndex:indexPath.section];
     NSString *text = [[sectionItem objectForKey:@"items"] objectAtIndex:indexPath.row];
     
-    UITableViewCell *cell = (id)[_tableView dequeueReusableCellWithIdentifier:@"cell"];
+    mrCell *cell = (id)[_tableView dequeueReusableCellWithIdentifier:@"cell"];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"] autorelease];
-        cell.selectionStyle = UITableViewCellSelectionStyleGray;
+        cell = [[[mrCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"] autorelease];
     }
     cell.textLabel.text = text;
     return cell;
-}
-
-//展開したセルの高さ
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return 40.0;
 }
 
 //展開したセルの数
@@ -68,18 +62,12 @@
     return _items.count;
 }
 
-//セクションヘッダの高さ
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
-{
-    return 30.0;
-}
-
 //セクションヘッダ
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
     NSDictionary *sectionItem = [_items objectAtIndex:section];
     
-    mrSectionHeaderCell *cell = (id)[_tableView dequeueReusableCellWithIdentifier:@"header"];
+    mrSectionHeaderCell *cell = (id)[tableView dequeueReusableCellWithIdentifier:@"header"];
     if (cell == nil) {
         cell = [[[mrSectionHeaderCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"header"] autorelease];
     }
@@ -89,7 +77,7 @@
     cell.ctrl.tag = section;
     [cell.ctrl addTarget:self action: @selector(headerTapped:) forControlEvents: UIControlEventTouchUpInside];
     CGRect rect = cell.bounds;
-    rect.size.height = [self tableView:tableView heightForHeaderInSection:section];
+    rect.size.height = tableView.sectionHeaderHeight;
     cell.savedRect = rect;
     return cell;
 }
@@ -101,7 +89,9 @@
     NSDictionary *sectionItem = [_items objectAtIndex:section];
     sectionItem.extended = !sectionItem.extended;
     
+    // not Animation
     //[_tableView reloadData];
+    //return;
     
     [_tableView beginUpdates];
     NSArray *sitems = [sectionItem objectForKey:@"items"];
@@ -183,7 +173,9 @@
     _tableView = [[UITableView alloc] initWithFrame:self.view.bounds];
     _tableView.delegate = self;
     _tableView.dataSource = self;
-    //_tableView.separatorStyle = UITableViewCellSeparatorStyleNone;  
+    _tableView.rowHeight = 40.0;
+    _tableView.sectionHeaderHeight = 30.0;
+    _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;  
     [self.view addSubview:_tableView];
     [_tableView release];
     
