@@ -205,7 +205,7 @@ void CGContextDrawAdditionalLine(CGContextRef context, CGRect rect, CGFloat scal
     CGFloat rad = 10*scale;  //角の半径
     CGFloat qx = 10*scale; // くちばしの長さ
     CGFloat qy = 20*scale; // くちばしの高さ
-    CGFloat cqy = 4*scale; // 上くちばしカーブの基準点の高さ
+    //CGFloat cqy = 4*scale; // 上くちばしカーブの基準点の高さ
     CGFloat lx = CGRectGetMinX(rect)+qx; //左
     CGFloat rx = CGRectGetMaxX(rect); //右
     CGFloat ty = CGRectGetMinY(rect); //上
@@ -234,13 +234,13 @@ void CGContextDrawAdditionalLine(CGContextRef context, CGRect rect, CGFloat scal
     
     CGContextSetRGBStrokeColor(context, 1, 0, 0, 0.7);
     CGContextMoveToPoint(context, lx+4.3*scale, by-1.8*scale);
-    CGContextAddLineToPoint(context, lx, by);
+    //CGContextAddLineToPoint(context, lx, by);
     CGContextAddLineToPoint(context, lx-qx, by);
     CGContextStrokePath(context);
     
     CGContextSetRGBStrokeColor(context, 0, 0, 1, 0.7);
     CGContextMoveToPoint(context, lx-qx, by);
-    CGContextAddLineToPoint(context, lx, by-cqy);
+    //CGContextAddLineToPoint(context, lx, by-cqy);
     CGContextAddLineToPoint(context, lx, by-qy);
     CGContextStrokePath(context);
 }
