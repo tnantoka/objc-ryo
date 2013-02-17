@@ -11,5 +11,6 @@
 @interface ViewController : UIViewController <UITableViewDataSource,UITableViewDelegate>{
     UITableView *_tableView;
     NSMutableArray *_items;
+    BOOL _sectionIndexColorChanged;
 }
 @end

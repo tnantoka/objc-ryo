@@ -65,17 +65,20 @@
     CGContextAddLineToPoint(context, rect.size.width, rect.size.height); 
     CGContextStrokePath(context);
     
+    //三角の位置
+    float x = 32;//rect.size.width - 20;
+    float y = 15;//12;
     //三角の中身
     CGContextSetFillColorWithColor(context, [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.4].CGColor);
     CGContextBeginPath(context);
     if(extended){
-        CGContextMoveToPoint(context, rect.size.width - 8, 20);
-        CGContextAddLineToPoint(context, rect.size.width - 20, 20);
-        CGContextAddLineToPoint(context, rect.size.width - 14, 12);
+        CGContextMoveToPoint(context, x+12, y+8);
+        CGContextAddLineToPoint(context, x, y+8);
+        CGContextAddLineToPoint(context, x+6, y);
     }else{
-        CGContextMoveToPoint(context, rect.size.width - 20, 12);
-        CGContextAddLineToPoint(context, rect.size.width - 8, 12);
-        CGContextAddLineToPoint(context, rect.size.width - 14, 20);
+        CGContextMoveToPoint(context, x, y);
+        CGContextAddLineToPoint(context, x+12, y);
+        CGContextAddLineToPoint(context, x+6, y+8);
     }
     CGContextClosePath(context);
     CGPathRef path = CGContextCopyPath(context);
@@ -91,12 +94,12 @@
     CGContextBeginPath(context);
     if(extended){
         CGContextSetStrokeColorWithColor(context, [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.3].CGColor);
-        CGContextMoveToPoint(context, rect.size.width - 20, 20);
-        CGContextAddLineToPoint(context, rect.size.width - 8, 20);
+        CGContextMoveToPoint(context, x, y+8);
+        CGContextAddLineToPoint(context, x+12, y+8);
     }else{
         CGContextSetStrokeColorWithColor(context, [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.4].CGColor);
-        CGContextMoveToPoint(context, rect.size.width - 20, 12);
-        CGContextAddLineToPoint(context, rect.size.width - 14, 20);
+        CGContextMoveToPoint(context, x, y);
+        CGContextAddLineToPoint(context, x+6, y+8);
     }
     CGContextStrokePath(context);
 }
